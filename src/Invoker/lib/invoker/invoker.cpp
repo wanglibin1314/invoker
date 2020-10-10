@@ -403,40 +403,6 @@ bool runProcess(std::string file, std::string args, PHANDLE hToken) {
 	return success;
 }
 
-bool dumpPartialProcMemory(int pid) {
-	bool success = false;
-	HANDLE hProcess = OpenProcess((PROCESS_QUERY_INFORMATION | PROCESS_VM_READ), 0, pid);
-	if (hProcess == NULL) {
-		hProcess = OpenProcess((PROCESS_QUERY_LIMITED_INFORMATION | PROCESS_VM_READ), 0, pid);
-	}
-	if (hProcess == NULL) {
-		output("Cannot get the process handle");
-	}
-	else {
-		std::string out = std::string("proc_mem_").append(intToStr(pid)).append(".dmp");
-		unsigned char* addr = 0;
-		MEMORY_BASIC_INFORMATION mbi = { 0 };
-		while (VirtualQueryEx(hProcess, addr, &mbi, sizeof(mbi))) {
-			if (mbi.AllocationProtect != PAGE_GUARD && mbi.Protect != PAGE_GUARD && mbi.AllocationProtect != PAGE_NOACCESS && mbi.Protect != PAGE_NOACCESS) {
-				char* buffer = new char[mbi.RegionSize];
-				if (ReadProcessMemory(hProcess, addr, buffer, strlen(buffer), NULL) != 0 && GetLastError() != 18 && appendFile(out, buffer) != 0) {
-					success = true;
-				}
-				delete[] buffer;
-			}
-			addr += mbi.RegionSize;
-		}
-		if (success) {
-			output("Process memory was dumped in \"" + out + "\"");
-		}
-		else {
-			output("Cannot dump the process memory");
-		}
-		CloseHandle(hProcess);
-	}
-	return success;
-}
-
 bool dumpFullProcMemory(int pid) {
 	bool success = false;
 	HANDLE hProcess = OpenProcess((PROCESS_QUERY_INFORMATION | PROCESS_VM_READ), 0, pid);
@@ -453,7 +419,7 @@ bool dumpFullProcMemory(int pid) {
 			output("Cannot create \"" + out + "\"");
 		}
 		else {
-			if (MiniDumpWriteDump(hProcess, pid, hFile, MiniDumpWithFullMemory, NULL, NULL, NULL)) {
+			if (MiniDumpWriteDump(hProcess, pid, hFile, MiniDumpWithFullMemory, NULL, NULL, NULL) != 0) {
 				success = true;
 				output("Process memory was dumped in \"" + out + "\"");
 			}
@@ -710,7 +676,7 @@ HANDLE createHookThread(struct hook* info) {
 		output("Cannot create the hook thread");
 	}
 	else {
-		// NOTE: Just a little delay so the print doesn't get messed up.
+		// NOTE: Just a little delay so the output doesn't get messed up.
 		WaitForSingleObject(hThread, 500);
 	}
 	return hThread;
