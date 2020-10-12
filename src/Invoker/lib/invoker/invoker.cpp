@@ -12,7 +12,6 @@
 #pragma  comment(lib, "libuuid.lib")
 #include <tlhelp32.h>
 #include <dbghelp.h>
-#include <libloaderapi.h>
 
 #define BUFFER_SIZE 1024
 
@@ -833,7 +832,7 @@ std::string getUnquotedServiceName() {
 								if (config != NULL) {
 									if (QueryServiceConfigA(hService, config, size, &size) != 0) {
 										std::string path(config->lpBinaryPathName, strlen(config->lpBinaryPathName));
-										if (path.find("\"") == std::string::npos && path.find(":\\Windows\\") == std::string::npos && (config->dwStartType == SERVICE_AUTO_START || config->dwStartType == SERVICE_DEMAND_START) && (services->ServiceStatus.dwCurrentState == SERVICE_RUNNING || services->ServiceStatus.dwCurrentState == SERVICE_STOPPED)) {
+										if (path.find("\"") == std::string::npos && strToLower(path).find(":\\windows\\") == std::string::npos && (config->dwStartType == SERVICE_AUTO_START || config->dwStartType == SERVICE_DEMAND_START) && (services->ServiceStatus.dwCurrentState == SERVICE_RUNNING || services->ServiceStatus.dwCurrentState == SERVICE_STOPPED)) {
 											exists = true;
 											printf("Name        : %s\n", services->lpServiceName);
 											printf("DisplayName : %s\n", services->lpDisplayName);
