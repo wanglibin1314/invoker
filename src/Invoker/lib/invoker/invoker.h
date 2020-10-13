@@ -60,9 +60,7 @@ bool terminateProcess(int pid);
 
 bool runProcess(std::string file, std::string args = "", PHANDLE hToken = NULL);
 
-bool dumpPartialProcMemory(int pid);
-
-bool dumpFullProcMemory(int pid);
+bool dumpProcMemory(int pid);
 
 // -----------------------------------------------------
 

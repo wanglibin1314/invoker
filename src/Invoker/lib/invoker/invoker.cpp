@@ -402,7 +402,7 @@ bool runProcess(std::string file, std::string args, PHANDLE hToken) {
 	return success;
 }
 
-bool dumpFullProcMemory(int pid) {
+bool dumpProcMemory(int pid) {
 	bool success = false;
 	HANDLE hProcess = OpenProcess((PROCESS_QUERY_INFORMATION | PROCESS_VM_READ), 0, pid);
 	if (hProcess == NULL) {
